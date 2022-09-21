@@ -77,7 +77,7 @@ const App = () => {
     <View style={styles.home}>
       <Header />
       {GoogleSignInButton()}
-      <Routes style={styles.routes} />
+      <Routes onLoginClick={onGoogleButtonPress} style={styles.routes} />
     </View>
   );
 };
