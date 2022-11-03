@@ -1,85 +1,128 @@
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
-  onAuthStateChanged,
-  FacebookAuthProvider,
-  signInWithCredential,
-} from 'firebase/auth';
-import { StyleSheet, View } from 'react-native';
-import React from "react";
-import { Header } from "./Componet/header";
-import { Routes } from "./Componet/routes";
-import reactDom from 'react-dom';
+import { StyleSheet, View, Button, Text } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { Header } from "./components/header";
+import { Routes } from "./components/routes";
+import auth from "@react-native-firebase/auth"
+import { AccessToken, LoginManager, ShareDialog } from 'react-native-fbsdk-next';
 
+const onFacebookButtonPress = async () => {
+  // Attempt login with permissions
+  const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDN_qHhxPaOGG95tpNSivcpUr5HQpHZytE",
-  authDomain: "three-in-one-ae036.firebaseapp.com",
-  projectId: "three-in-one-ae036",
-  storageBucket: "three-in-one-ae036.appspot.com",
-  messagingSenderId: "887016390278",
-  appId: "1:887016390278:web:3a125ae6139cf3b5d89b07"
-};
-
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-
-
-
-const auth = getAuth(firebaseApp);
-
-// Listen for authentication state to change.
-onAuthStateChanged(auth, user => {
-  if (user != null) {
-    console.log('We are authenticated now!');
+  if (result.isCancelled) {
+    throw 'User cancelled the login process';
   }
 
-  // Do other things
-});
+  // Once signed in, get the users AccesToken
+  const data = await AccessToken.getCurrentAccessToken();
 
+  if (!data) {
+    throw 'Something went wrong obtaining access token';
+  }
 
-
-GoogleSignin.configure({
-  webClientId: '887016390278-aob7n4s679eflts2eidop100o1id6il2.apps.googleusercontent.com',
-});
-
-
-
-async function onGoogleButtonPress() {
-  // Get the users ID token
-  const { idToken } = await GoogleSignin.signIn();
-
-  // Create a Google credential with the token
-  const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  // Create a Firebase credential with the AccessToken
+  const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
 
   // Sign-in the user with the credential
-  return auth().signInWithCredential(googleCredential);
+  return auth().signInWithCredential(facebookCredential);
 }
 
-import { Button } from 'react-native';
-
-function GoogleSignInButton() {
-  return (
-    <Button
-      title="Google Sign-In"
-      onPress={() => onGoogleButtonPress().then(() => console.log('Signed in with Google!'))}
-    />
-  );
+const onLogoutButtonPress = async () => {
+  await LoginManager.logOut()
+  return auth().signOut()
 }
+
+// const onFacebookButtonPress = async () => {
+//   console.log('Click!')
+// }
+
+// Build up a shareable link.
+// const linkExample = {
+//   contentType: 'link',
+//   contentUrl: "https://facebook.com",
+// };
+
+const photoExample = {
+  contentType: 'photo',
+  photos: [
+    { imageUrl: "https://media.giphy.com/media/xT5LMzIK1AdZJ4cYW4/giphy.gif" }
+  ]
+};
 
 const App = () => {
+
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
+  const [shareLinkContent, setShareLinkContent] = useState(photoExample);
+
+// ...
+
+// Share the link using the share dialog.
+  const onShareButtonPress = async () => {
+    ShareDialog.canShow(shareLinkContent).then((canShow) => {
+        console.log("can show", canShow)
+        if (canShow) {
+          return ShareDialog.show(shareLinkContent);
+        }
+      }
+    ).then((result) => {
+        console.log('result', result)
+        if (result.isCancelled) {
+          console.log('Share cancelled');
+        } else {
+          console.log('Share success with postId: '
+            + result.postId);
+        }
+      },
+      (error) => {
+        console.log('Share fail with error: ' + error);
+      }
+    );
+  }
+
+  // Handle user state changes
+  const onAuthStateChanged = (user) => {
+    console.log('user', user)
+    setUser(user);
+    if (initializing) setInitializing(false);
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  const renderLoginButton = () => {
+    return (
+        <>
+          <Header />
+          <Button title="Facebook Sign-In" onPress={() => onFacebookButtonPress().then(() => console.log('Signed in with Facebook!'))} />
+        </>
+    );
+  }
+
+  /*
+            <Button
+            title="Share"
+            onPress={() => onShareButtonPress().then(() => console.log('Opend facebook share dialog!'))}
+          />
+          */
+
+  const renderContent = () => {
+    return (
+        <>
+        <Header />
+        <Routes style={styles.routes} />
+        <Button title="Logout" onPress={() => onLogoutButtonPress().then(() => console.log('Logged out!'))} />
+        </>
+    );
+  }
+
   return (
-    <View style={styles.home}>
-      <Header />
-      {GoogleSignInButton()}
-      <Routes onLoginClick={onGoogleButtonPress} style={styles.routes} />
-    </View>
-  );
+     <View style={styles.home}>{user ? renderContent() : renderLoginButton()}</View>
+  )
+
+
 };
 
 const styles = StyleSheet.create({

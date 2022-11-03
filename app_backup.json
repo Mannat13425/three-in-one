@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "three-in-one",
-    "slug": "three-in-one",
+    "name": "hello-world-expo-app",
+    "slug": "hello-world-expo-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,20 +24,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      },
-      "package": "com.markan.threeinone",
-      "googleServicesFile": "./google-services.json"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "f0c5fc5c-0059-46b7-bebb-d1d10ce1b112"
-      }
-    },
-    "plugins": [
-      "@react-native-firebase/app"
-    ]
+    }
   }
 }
