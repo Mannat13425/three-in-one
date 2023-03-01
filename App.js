@@ -7,7 +7,7 @@ import { AccessToken, LoginManager, ShareDialog } from 'react-native-fbsdk-next'
 
 const onFacebookButtonPress = async () => {
   // Attempt login with permissions
-  const result = await LoginManager.logInWithPermissions(['public_profile', 'email', 'instagram_content_publish', 'pages_show_list']);
+  const result = await LoginManager.logInWithPermissions(['public_profile', 'email', 'instagram_content_publish', 'pages_show_list', 'pages_manage_posts']);
 
   if (result.isCancelled) {
     throw 'User cancelled the login process';

@@ -18,7 +18,37 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.markan.threeinone",
+      "googleServicesFile": "./GoogleService-info.plist",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.markan.threeinone",
+              "fb828715301532825",
+              "com.googleusercontent.apps.212507355234-hgqthl9046p20duqb1u38krvrl4is9ph"
+            ]
+          }
+        ],
+        "FacebookAppID": "828715301532825",
+        "FacebookDisplayName": "three-in-one-test",
+        "FacebookClientToken": "1c1cb42ab5ac11b5863fa36e173b1426",
+        "LSApplicationQueriesSchemes": [
+          "fbapi",
+          "fb-messenger-api",
+          "fbauth2",
+          "fbshareextension"
+        ],
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,18 +56,54 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.markan.threeinone",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "f0c5fc5c-0059-46b7-bebb-d1d10ce1b112"
+        "projectId": "2d63719c-c98e-445c-a81e-23e2a0ccb8d5"
       }
     },
     "plugins": [
-      "@react-native-firebase/app"
-    ]
+      "@react-native-firebase/app",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "828715301532825",
+          "clientToken": "1c1cb42ab5ac11b5863fa36e173b1426",
+          "displayName": "three-in-one-test",
+          "scheme": "fb828715301532825"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 31,
+            "targetSdkVersion": 31,
+            "buildToolsVersion": "31.0.0"
+          },
+          "ios": {
+            "deploymentTarget": "13.0",
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "expo-image-picker",
+      [
+        "./plugins/facebookContentProvider",
+        {
+          "appID": "828715301532825"
+        }
+      ]
+
+    ],
+    "owner": "mannat1234"
   }
 }
